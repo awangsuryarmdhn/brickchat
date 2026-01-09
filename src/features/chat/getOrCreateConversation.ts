@@ -1,18 +1,12 @@
 import { supabase } from "@/lib/supabase";
+import { sendBotMessage } from "./sendBotMessage";
 
-/**
- * Ambil conversation jika sudah ada,
- * atau buat baru jika belum.
- * Idempotent & aman dipanggil berulang.
- */
 export async function getOrCreateConversation(
   userA: string,
   userB: string
 ): Promise<string> {
-  // pastikan urutan konsisten (hindari duplicate)
   const [a, b] = userA < userB ? [userA, userB] : [userB, userA];
 
-  // 1. coba ambil conversation existing
   const { data: existing } = await supabase
     .from("conversations")
     .select("id")
@@ -22,19 +16,22 @@ export async function getOrCreateConversation(
 
   if (existing) return existing.id;
 
-  // 2. jika belum ada, buat baru
   const { data: created, error } = await supabase
     .from("conversations")
-    .insert({
-      user_a: a,
-      user_b: b
-    })
+    .insert({ user_a: a, user_b: b })
     .select("id")
     .single();
 
-  if (error) {
-    throw new Error(error.message);
+  if (error || !created) {
+    throw new Error("Failed to create conversation");
   }
 
-  return created.id;
+  const conversationId = created.id;
+
+  await sendBotMessage(
+    conversationId,
+    "👋 Welcome to BRICK!\n\nThis is a private chat. Messages are realtime and secure."
+  );
+
+  return conversationId;
 }

@@ -5,19 +5,18 @@ type Props = {
 
 export default function Header({ title, onBack }: Props) {
   return (
-    <header
-      style={{
-        padding: "12px 16px",
-        borderBottom: "1px solid #e5e7eb",
-        display: "flex",
-        alignItems: "center",
-        gap: 8
-      }}
-    >
+    <div className="flex items-center gap-3 px-4 py-3">
       {onBack && (
-        <button onClick={onBack}>&larr;</button>
+        <button
+          onClick={onBack}
+          className="text-sm text-blue-600"
+        >
+          ← Back
+        </button>
       )}
-      <h3 style={{ margin: 0 }}>{title}</h3>
-    </header>
+      <h1 className="text-base font-semibold">
+        {title}
+      </h1>
+    </div>
   );
 }

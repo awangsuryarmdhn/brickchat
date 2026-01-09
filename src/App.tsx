@@ -5,6 +5,7 @@ import Inbox from "@/features/chat/Inbox";
 import ChatView from "@/features/chat/ChatView";
 import StartChat from "@/features/chat/StartChat";
 import Login from "@/features/auth/Login";
+import AppShell from "@/components/layout/AppShell";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -18,25 +19,26 @@ export default function App() {
   if (loading) return <p>Loading...</p>;
   if (!user) return <Login />;
 
-  if (!activeConversation) {
-    return (
-      <>
-        <StartChat
-          currentUserId={user.id}
-          onStart={setActiveConversation}
-        />
-        <Inbox
-          userId={user.id}
-          onSelect={setActiveConversation}
-        />
-      </>
-    );
-  }
-
   return (
-    <ChatView
-      conversationId={activeConversation}
-      userId={user.id}
-    />
+    <AppShell>
+      {!activeConversation ? (
+        <>
+          <StartChat
+            currentUserId={user.id}
+            onStart={setActiveConversation}
+          />
+          <Inbox
+            userId={user.id}
+            onSelect={setActiveConversation}
+          />
+        </>
+      ) : (
+        <ChatView
+          conversationId={activeConversation}
+          userId={user.id}
+          onBack={() => setActiveConversation(null)}
+        />
+      )}
+    </AppShell>
   );
 }
